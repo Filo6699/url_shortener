@@ -19,6 +19,8 @@
         const form = document.querySelector("#url_form")
         const copy_button = document.querySelector("#copy_button")
         var copy_url = null;
+        const baseURL = window.location.href;
+        console.log(baseURL)
 
         document.getElementById('copy_button').addEventListener('click', function() {
             var tempInput = document.createElement("input");
@@ -36,7 +38,7 @@
             var resultElement = document.getElementById('result');
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://localhost:5000/upload", true);
+            xhr.open("POST", `${baseURL}upload`, true);
             xhr.setRequestHeader("Content-Type", "application/json");
 
             var data = JSON.stringify({ url: url.value });
@@ -44,8 +46,8 @@
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     var response = JSON.parse(xhr.responseText);
-                    copy_url = `http://localhost:5000/${response[0]['data']}`;
-                    resultElement.innerHTML = `Shortened URL: <a href="http://localhost:5000/${copy_url}">${copy_url}</a>`;
+                    copy_url = baseURL + response[0]['data'];
+                    resultElement.innerHTML = `Shortened URL: <a href="${copy_url}">${copy_url}</a>`;
 
                     copy_button.hidden = false;
 
