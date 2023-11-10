@@ -46,18 +46,31 @@
             var data = JSON.stringify({ url: url.value });
 
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    copy_url = baseURL + response[0]['data'];
-                    resultElement.innerHTML = `Shortened URL: <a href="${copy_url}">${copy_url}</a>`;
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        copy_url = baseURL + response[0]['data'];
+                        resultElement.innerHTML = `Shortened URL: <a href="${copy_url}">${copy_url}</a>`;
 
-                    copy_button.hidden = false;
+                        copy_button.hidden = false;
 
-                    var formElements = form.elements;
-                    for (var i = 0; i < formElements.length; i++) {
-                        formElements[i].disabled = false;
+                        var formElements = form.elements;
+                        for (var i = 0; i < formElements.length; i++) {
+                            formElements[i].disabled = false;
+                        }
+                        url.value = "";
+                    } else {
+                        var response = JSON.parse(xhr.responseText);
+                        resultElement.innerHTML = `Error: ${response['message']}`;
+
+                        copy_button.hidden = false;
+
+                        var formElements = form.elements;
+                        for (var i = 0; i < formElements.length; i++) {
+                            formElements[i].disabled = false;
+                        }
+                        url.value = "";
                     }
-                    url.value = "";
                 }
             };
 

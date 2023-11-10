@@ -3,7 +3,8 @@ from db import DB
 import os
 from hash import shorten_url
 from json import loads
-from flask import Flask, jsonify, request, redirect, render_template
+import validators
+from flask import Flask, jsonify, request, redirect, render_template, make_response
 
 
 app = Flask(__name__)
@@ -39,9 +40,9 @@ def upload_url():
     data: dict = loads(request.data)
     full_url = data.get('url')
     if not full_url:
-        return jsonify({"message": "No url provided"}, 400)
-    if full_url[:7] not in ["http://", "https:/"]:
-        return jsonify({"message": "Not a valid URL"}, 400)
+        return make_response(jsonify({"message": "No url provided"}), 400)
+    if not validators.url(full_url) == True:
+        return make_response(jsonify({"message": "Not a valid URL"}), 400)
     short_url = shorten_url(full_url)
     if not DB.find_url(short_url):
         DB.insert_url(short_url, full_url)
