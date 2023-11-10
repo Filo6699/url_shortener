@@ -3,6 +3,8 @@ from db import DB
 import os
 from hash import shorten_url
 import json
+import io
+from svgwrite import Drawing, text
 import validators
 from flask import Flask, jsonify, request, redirect, render_template, make_response
 
@@ -50,6 +52,21 @@ def upload_url():
     if not DB.find_url(short_url):
         DB.insert_url(short_url, full_url)
     return jsonify({"message": "Uploaded", "data": short_url}, 200)
+
+
+@app.route('/my-mood/get-svg')
+def generate_svg():
+    drawing = Drawing(size=(400, 20))
+    drawing.add(text.Text("im fine", insert=(10, 20), font_size=16, fill='white'))
+
+    svg_file = io.StringIO()
+    drawing.write(svg_file)
+
+    response = make_response(svg_file.getvalue())
+
+    response.headers['Content-Type'] = 'image/svg+xml'
+
+    return response
 
 
 @app.route("/", methods=['GET'])
