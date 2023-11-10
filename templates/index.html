@@ -63,7 +63,7 @@
                         var response = JSON.parse(xhr.responseText);
                         resultElement.innerHTML = `Error: ${response['message']}`;
 
-                        copy_button.hidden = false;
+                        copy_button.hidden = true;
 
                         var formElements = form.elements;
                         for (var i = 0; i < formElements.length; i++) {
