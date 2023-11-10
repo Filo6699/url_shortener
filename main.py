@@ -60,4 +60,7 @@ def main():
 if __name__ == "__main__":
     load_dotenv(),
     DB.connect()
-    app.run()
+    if os.getenv("SSL") == 'on':
+        app.run(ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
+    else:
+        app.run()
