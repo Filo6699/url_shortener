@@ -40,6 +40,8 @@ def upload_url():
     full_url = data.get('url')
     if not full_url:
         return jsonify({"message": "No url provided"}, 400)
+    if full_url[:7] not in ["http://", "https:/"]:
+        return jsonify({"message": "Not a valid URL"}, 400)
     short_url = shorten_url(full_url)
     if not DB.find_url(short_url):
         DB.insert_url(short_url, full_url)
@@ -54,4 +56,4 @@ def main():
 if __name__ == "__main__":
     load_dotenv(),
     DB.connect()
-    app.run("0.0.0.0", port=5000)
+    app.run()

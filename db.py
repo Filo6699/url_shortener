@@ -22,11 +22,11 @@ class DB:
         cls._cursor = cls._connection.cursor()
 
     @classmethod
-    def execute(cls, query):
+    def execute(cls, query, params=None):
         if cls._connection == None:
             print(f"No connection to database. Failed to execute a query: {query}")
             return
-        cls._cursor.execute(query)
+        cls._cursor.execute(query, params)
         try:
             records = cls._cursor.fetchall()
         except psycopg2.ProgrammingError: # raised when there is no results to fetch
@@ -43,20 +43,16 @@ class DB:
         return cls.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public';")
     
     @classmethod
-    def fetch_table(cls, tablename):
-        return cls.execute(f"SELECT * FROM {tablename};")
-    
-    @classmethod
     def insert_url(cls, short_url, original_url):
-        return cls.execute(f"INSERT INTO url_data (short_url, original_url) VALUES ('{short_url}', '{original_url}');")
+        return cls.execute("INSERT INTO url_data (short_url, original_url) VALUES (%s, %s);", (short_url, original_url, ))
     
     @classmethod
     def view_urls(cls):
-        return cls.fetch_table("url_data")
+        return cls.execute("SELECT * FROM url_data")
     
     @classmethod
     def find_url(cls, short_url):
-        return cls.execute(f"SELECT original_url FROM url_data WHERE short_url = '{short_url}' LIMIT 1;")
+        return cls.execute("SELECT original_url FROM url_data WHERE short_url = %s LIMIT 1;", (short_url, ))
     
     @classmethod
     def close(cls):
