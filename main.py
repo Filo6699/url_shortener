@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from db import DB
 import os
 from hash import shorten_url
-from json import loads
+import json
 import validators
 from flask import Flask, jsonify, request, redirect, render_template, make_response
 
@@ -37,7 +37,10 @@ def tables():
 
 @app.route("/upload", methods=['POST'])
 def upload_url():
-    data: dict = loads(request.data)
+    try:
+        data: dict = json.loads(request.data)
+    except json.JSONDecodeError:
+        return make_response(jsonify({"message": "Invalid data provided"}), 400)
     full_url = data.get('url')
     if not full_url:
         return make_response(jsonify({"message": "No url provided"}), 400)
