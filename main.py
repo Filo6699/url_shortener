@@ -77,6 +77,6 @@ if __name__ == "__main__":
     
     # Configure SSL if enabled
     if os.getenv("SSL") == 'on':
-        app.run(ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
+        app.run("0.0.0.0", ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
     else:
-        app.run()
+        app.run("0.0.0.0")
