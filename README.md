@@ -9,3 +9,6 @@ Simple URL shortener written in Python and a bit JS.
 * Note: To install psycorg2 you follow [this guide](https://www.psycopg.org/docs/install.html). You can use pre-compiled binary if you are just having fun
 4. Create `.env` file based on `.env.example`
 5. Run `python main.py`
+
+## Demo
+You can see how it works in action here: https://urlshort.xyz
