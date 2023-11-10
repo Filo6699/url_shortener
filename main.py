@@ -7,6 +7,8 @@ import io
 from svgwrite import Drawing, text
 import validators
 from flask import Flask, jsonify, request, redirect, render_template, make_response
+import signal
+import sys
 
 
 app = Flask(__name__)
@@ -71,12 +73,18 @@ def generate_svg():
 
 @app.route("/", methods=['GET'])
 def main():
-    return render_template("index.html")
+    return render_template("index.html", visits=DB.visits())
+
+
+def shutdown(*_):
+    DB.save_visits()
+    sys.exit(0)
 
 
 if __name__ == "__main__":
     load_dotenv(),
     DB.connect()
+    signal.signal(signal.SIGINT, shutdown)
     if os.getenv("SSL") == 'on':
         app.run(ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
     else:

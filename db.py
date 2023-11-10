@@ -5,6 +5,7 @@ import psycopg2
 class DB:
     _connection = None
     _cursor = None
+    _visits = None
 
     @classmethod
     def connect(cls):
@@ -39,12 +40,21 @@ class DB:
             return records
     
     @classmethod
-    def fetch_table_names(cls):
-        return cls.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public';")
-    
-    @classmethod
     def insert_url(cls, short_url, original_url):
         return cls.execute("INSERT INTO url_data (short_url, original_url) VALUES (%s, %s);", (short_url, original_url, ))
+
+    @classmethod
+    def save_visits(cls):
+        if cls._visits:
+            cls.execute("UPDATE visit_counts SET visit_count = %s;", (cls._visits, ))
+
+    @classmethod
+    def visits(cls):
+        if cls._visits:
+            cls._visits += 1
+            return cls._visits
+        cls._visits = int(cls.execute("SELECT visit_counts FROM visit_counts;")[0][3:-1])
+        return cls._visits
     
     @classmethod
     def view_urls(cls):
