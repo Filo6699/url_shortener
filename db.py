@@ -86,6 +86,8 @@ class DB:
         """
         if cls._visits:
             cls._visits += 1
+            if cls._visits % 50 == 0:
+                cls.execute("UPDATE visit_counts SET visit_count = %s;", (cls._visits,))
             return cls._visits
         cls._visits = int(cls.execute("SELECT visit_counts FROM visit_counts;")[0][3:-1])
         return cls._visits

@@ -1,21 +1,49 @@
-from dotenv import load_dotenv
-from db import DB
-import os
-from hash import shorten_url
 import json
-import io
-from svgwrite import Drawing, text
-import validators
-from flask import Flask, jsonify, request, redirect, render_template, make_response
+import logging
+import os
 import signal
 import sys
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request, redirect, render_template, make_response
+from svgwrite import Drawing, text
+import validators
+from db import DB
+from hash import shorten_url
 
-app = Flask(__name__)
+# App creation
+
+def create_app():
+    app = Flask(__name__)
+    app.logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s %(message)s')
+
+    log_directory = 'logs/'
+    os.makedirs(log_directory, exist_ok=True)
+
+    file_handler = logging.FileHandler('logs/app.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+    app.logger.addHandler(stream_handler)
+
+    return app
+
+app = create_app()
+
+@app.before_request
+def log_request_info() -> None:
+    log = "\nRequest URL: %s\nFrom: %s\n%s\nData: %s\n"
+    app.logger.debug(log, request.url, request.remote_addr, str(request.headers).strip(), request.data)
 
 # Routes
 
 @app.route("/<string:url>", methods=['GET'])
-def url(url):
+def redirect_url(url):
     """Redirect to the original URL."""
     redirect_url = DB.find_url(url)
     if redirect_url:
@@ -44,8 +72,9 @@ def upload_url():
     """Upload a new URL."""
     try:
         data: dict = json.loads(request.data)
-    except json.JSONDecodeError:
-        return make_response(jsonify({"message": "Invalid data provided"}), 400)
+    except json.JSONDecodeError as e:
+        return make_response(jsonify({"message": f"Invalid data provided: {e}"}), 400)
+
     full_url = data.get('url')
     if not full_url:
         return make_response(jsonify({"message": "No URL provided"}), 400)

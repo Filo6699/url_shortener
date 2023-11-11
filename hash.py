@@ -31,4 +31,4 @@ def encode_base62(num):
     while num > 0:
         num, remainder = divmod(num, 62)
         result.append(BASE62[remainder])
-    return ''.join(result[::-1])
+    return "".join(result[::-1])
