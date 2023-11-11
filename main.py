@@ -38,7 +38,9 @@ app = create_app()
 @app.before_request
 def log_request_info() -> None:
     log = "\nRequest URL: %s\n%s\nData: %s\n"
-    app.logger.debug(log, request.url, request.remote_addr, str(request.headers).strip(), request.data)
+    data_to_log = str(request.data) if request.data else "No data"
+    
+    app.logger.debug(log, request.url, request.remote_addr, str(request.headers).strip(), data_to_log)
 
 # Routes
 
