@@ -37,7 +37,7 @@ app = create_app()
 
 @app.before_request
 def log_request_info() -> None:
-    log = "\nRequest URL: %s\nFrom: %s\n%s\nData: %s\n"
+    log = "\nRequest URL: %s\n%s\nData: %s\n"
     app.logger.debug(log, request.url, request.remote_addr, str(request.headers).strip(), request.data)
 
 # Routes
