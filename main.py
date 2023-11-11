@@ -40,7 +40,7 @@ def log_request_info() -> None:
     log = "\nRequest URL: %s\n%s\nData: %s\n"
     data_to_log = str(request.data) if request.data else "No data"
     
-    app.logger.debug(log, request.url, request.remote_addr, str(request.headers).strip(), data_to_log)
+    app.logger.debug(log, request.url, str(request.headers).strip(), data_to_log)
 
 # Routes
 
