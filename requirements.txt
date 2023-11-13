@@ -2,3 +2,4 @@ python-dotenv
 validators
 svgwrite
 psycopg2
+gunicorn
