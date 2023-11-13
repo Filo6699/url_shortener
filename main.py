@@ -37,8 +37,15 @@ app = create_app()
 
 @app.before_request
 def log_request_info() -> None:
-    log = "\nRequest URL: %s\n%s\nData: %s\n"
-    app.logger.debug(log, request.url, request.remote_addr, str(request.headers).strip(), request.data)
+    log = "\nRequest URL: %s\n%s\n"
+    args = [
+        request.url,
+        str(request.headers).strip(),
+    ]
+    if request.data:
+        log += "Data: %s\n"
+        args.append(request.data)
+    app.logger.debug(log, *args)
 
 # Routes
 
@@ -94,18 +101,19 @@ def main():
 
 def shutdown(*_):
     """Save visits data on shutdown."""
+    print("saving")
     DB.save_visits()
     sys.exit(0)
 
-# Application Initialization
+# Initialization
 
-if __name__ == "__main__":
+def init():
     load_dotenv()
     DB.connect()
     signal.signal(signal.SIGINT, shutdown)
-    
+
     # Configure SSL if enabled
-    if os.getenv("SSL") == 'on':
-        app.run("0.0.0.0", ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
-    else:
-        app.run("0.0.0.0")
+    # if os.getenv("SSL") == 'on':
+    #     app.run("0.0.0.0", ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
+    # else:
+    #     app.run("0.0.0.0")
