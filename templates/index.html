@@ -4,39 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    
+        .container {
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 1em;
+            border-radius: 8px;
+            text-align: center;
+        }
+    
+        h1 {
+            color: #333;
+            margin-bottom: 0.5em;
+        }
+    
+        .description {
+            margin-bottom: 2em;
+            color: #666;
+            font-size: 0.9em;
+        }
+    
+        .url-input {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            margin-bottom: 1em;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    
+        .shorten-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+    
+        .shorten-button:hover {
+            background-color: #4cae4c;
+        }
+    
+        .result {
+            margin-top: 1em;
+            word-break: break-all;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <p>hallo, this is a simple URL shortener that i wrote in like 2 hours<br>
-       this page was visited {{ visits }} times!</p>
-    <form id="url_form">
-        <input type="url" id="url" name="url" placeholder="Your URL here" required>
-        <input id="submit" type="submit" value="Shorten!">
-    </form>
-
-    <div id="result"></div>
-    <button id="copy_button" hidden>Copy</button>
-
-    <a href="https://github.com/Filo6699/url_shortener">Github repo</a>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <p class="description">Enter your long URL to make it short and sweet.</p>
+        <input type="url" id="urlInput" class="url-input" placeholder="Enter your long URL here" required />
+        <button id="shortenButton" class="shorten-button">Shorten URL</button>
+        <div id="result" class="result"></div>
+        <a href="https://github.com/Filo6699/url_shortener">
+            <img src="{{ url_for('static', filename='github-logo.png') }}" alt="GitHub Logo" style="width: 30px; height: 30px; vertical-align: middle;">
+        </a>
+    </div>
 
     <script>
-        const form = document.querySelector("#url_form")
-        const copy_button = document.querySelector("#copy_button")
-        var copy_url = null;
         const baseURL = window.location.href;
-        console.log(baseURL)
+        var upload_button = document.getElementById('shortenButton')
 
-        document.getElementById('copy_button').addEventListener('click', function() {
-            var tempInput = document.createElement("input");
-            tempInput.value = copy_url;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-        });
-
-        document.getElementById('url_form').addEventListener('submit', function(event) {
+        upload_button.addEventListener('click', function(event) {
             event.preventDefault();
-            var url = document.getElementById('url');
+            var url = document.getElementById('urlInput');
 
             var resultElement = document.getElementById('result');
 
@@ -53,23 +111,15 @@
                         copy_url = baseURL + response[0]['data'];
                         resultElement.innerHTML = `Shortened URL: <a href="${copy_url}">${copy_url}</a>`;
 
-                        copy_button.hidden = false;
-
-                        var formElements = form.elements;
-                        for (var i = 0; i < formElements.length; i++) {
-                            formElements[i].disabled = false;
-                        }
+                        url.disabled = true;
+                        upload_button.disabled = true;
                         url.value = "";
                     } else {
                         var response = JSON.parse(xhr.responseText);
                         resultElement.innerHTML = `Error: ${response['message']}`;
 
-                        copy_button.hidden = true;
-
-                        var formElements = form.elements;
-                        for (var i = 0; i < formElements.length; i++) {
-                            formElements[i].disabled = false;
-                        }
+                        url.disabled = true;
+                        upload_button.disabled = true;
                         url.value = "";
                     }
                 }
@@ -77,10 +127,8 @@
 
             xhr.send(data);
 
-            var formElements = form.elements;
-            for (var i = 0; i < formElements.length; i++) {
-                formElements[i].disabled = true;
-            }
+            url.disabled = false;
+            upload_button.disabled = false;
         });
     </script>
 </body>

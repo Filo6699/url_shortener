@@ -35,5 +35,5 @@ See the URL shortener in action: [urlshort.xyz](https://urlshort.xyz)
 6. Run the application:
 
    ```bash
-   python main.py
+   gunicorn -c gunicorn_config.py wsgi:app
    ```
