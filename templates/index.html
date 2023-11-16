@@ -111,24 +111,23 @@
                         copy_url = baseURL + response[0]['data'];
                         resultElement.innerHTML = `Shortened URL: <a href="${copy_url}">${copy_url}</a>`;
 
-                        url.disabled = true;
-                        upload_button.disabled = true;
+                        url.disabled = false;
+                        upload_button.disabled = false;
                         url.value = "";
                     } else {
                         var response = JSON.parse(xhr.responseText);
                         resultElement.innerHTML = `Error: ${response['message']}`;
 
-                        url.disabled = true;
-                        upload_button.disabled = true;
+                        url.disabled = false;
+                        upload_button.disabled = false;
                         url.value = "";
                     }
                 }
             };
 
+            url.disabled = true;
+            upload_button.disabled = true;
             xhr.send(data);
-
-            url.disabled = false;
-            upload_button.disabled = false;
         });
     </script>
 </body>
