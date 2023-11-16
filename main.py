@@ -10,7 +10,17 @@ import validators
 from db import DB
 from hash import shorten_url
 
-# App creation
+
+def load_blacklist():
+    data = ""
+    with open("blacklist.json", "r") as file:
+        data = file.read()
+    try:
+        output = json.loads(data)
+    except json.JSONDecodeError as err:
+        output = []
+        app.logger.warning(f"Failed to parse blacklist.json: {err}")
+    return output
 
 def create_app():
     app = Flask(__name__)
@@ -34,6 +44,7 @@ def create_app():
     return app
 
 app = create_app()
+blacklist = load_blacklist()
 
 @app.before_request
 def log_request_info() -> None:
@@ -87,6 +98,9 @@ def upload_url():
         return make_response(jsonify({"message": "No URL provided"}), 400)
     if not validators.url(full_url) == True:
         return make_response(jsonify({"message": "Not a valid URL"}), 400)
+    for blacklisted_url in blacklist:
+        if blacklisted_url in full_url:
+            return make_response(jsonify({"message": "You used a blacklisted URL"}), 400)
     short_url = shorten_url(full_url)
     if not DB.find_url(short_url):
         DB.insert_url(short_url, full_url)
@@ -109,11 +123,6 @@ def shutdown(*_):
 
 def init():
     load_dotenv()
+    DB.set_logger(app.logger)
     DB.connect()
     signal.signal(signal.SIGINT, shutdown)
-
-    # Configure SSL if enabled
-    # if os.getenv("SSL") == 'on':
-    #     app.run("0.0.0.0", ssl_context=(os.getenv("SSL_CERTIFICATE_PATH"), os.getenv("SSL_PRIVATE_KEY_PATH")))
-    # else:
-    #     app.run("0.0.0.0")

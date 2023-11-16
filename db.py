@@ -6,6 +6,11 @@ class DB:
     _connection = None
     _cursor = None
     _visits = None
+    logger = None
+
+    @classmethod
+    def set_logger(cls, logger):
+        cls.logger = logger
 
     @classmethod
     def connect(cls):
@@ -40,7 +45,8 @@ class DB:
             records (list): The result records of the query.
         """
         if cls._connection is None:
-            print(f"No connection to the database. Failed to execute a query: {query}")
+            if cls.logger:
+                cls.logger.error(f"No connection to the database. Failed to execute a query: {query}")
             return
         cls._cursor.execute(query, params)
         try:
