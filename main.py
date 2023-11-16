@@ -1,9 +1,9 @@
 import json
 import logging
-import os
 import signal
 import sys
-from dotenv import load_dotenv
+import os
+from decouple import config as env
 from flask import Flask, jsonify, request, redirect, render_template, make_response
 from svgwrite import Drawing, text
 import validators
@@ -21,6 +21,7 @@ def load_blacklist():
         output = []
         app.logger.warning(f"Failed to parse blacklist.json: {err}")
     return output
+
 
 def create_app():
     app = Flask(__name__)
@@ -43,8 +44,10 @@ def create_app():
 
     return app
 
+
 app = create_app()
 blacklist = load_blacklist()
+
 
 @app.before_request
 def log_request_info() -> None:
@@ -58,7 +61,6 @@ def log_request_info() -> None:
         args.append(request.data)
     app.logger.debug(log, *args)
 
-# Routes
 
 @app.route("/<string:url>", methods=['GET'])
 def redirect_url(url):
@@ -70,20 +72,23 @@ def redirect_url(url):
         return render_template("not_found.html")
     return redirect(redirect_url)
 
+
 @app.route("/list_urls", methods=['GET'])
 def admin():
     """View the list of URLs (admin access required)."""
     admin_key = request.headers.get("Authorization")
-    if admin_key != os.getenv("admin_key"):
+    if admin_key != env("admin_key"):
         return jsonify({"message": "Unauthorized"}, 401)
     urls = DB.view_urls()
     return jsonify({"url_list": urls})
+
 
 @app.route("/tables", methods=['GET'])
 def tables():
     """View the names of database tables."""
     names = DB.fetch_table_names()
     return jsonify({"tables": names})
+
 
 @app.route("/upload", methods=['POST'])
 def upload_url():
@@ -106,12 +111,12 @@ def upload_url():
         DB.insert_url(short_url, full_url)
     return jsonify({"message": "Uploaded", "data": short_url}, 200)
 
+
 @app.route("/", methods=['GET'])
 def main():
     """Render the main page."""
     return render_template("index.html", visits=DB.visits())
 
-# Shutdown Hook
 
 def shutdown(*_):
     """Save visits data on shutdown."""
@@ -119,10 +124,9 @@ def shutdown(*_):
     DB.save_visits()
     sys.exit(0)
 
-# Initialization
 
 def init():
-    load_dotenv()
+    """Initialize function that connects DB class to the database"""
     DB.set_logger(app.logger)
     DB.connect()
     signal.signal(signal.SIGINT, shutdown)

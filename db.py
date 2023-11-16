@@ -1,5 +1,5 @@
-import os
 import psycopg2
+from decouple import config as env
 
 
 class DB:
@@ -23,11 +23,11 @@ class DB:
             cls._cursor.close()
             cls._connection.close()
         db_params = {
-            'dbname': os.getenv("db_name"),
-            'user': os.getenv("db_user"),
-            'password': os.getenv("db_password"),
-            'host': os.getenv("db_host"),
-            'port': os.getenv("db_port") if os.getenv("db_port") is not None else '5432',
+            'dbname': env("db_name"),
+            'user': env("db_user"),
+            'password': env("db_password"),
+            'host': env("db_host"),
+            'port': env("db_port") if env("db_port") is not None else '5432',
         }
         cls._connection = psycopg2.connect(**db_params)
         cls._cursor = cls._connection.cursor()
